@@ -54,7 +54,7 @@ Activar **cámara local** en la app Tapo antes de usar la URL RTSP.
 El proxy MJPEG corre en HTTP (`localhost:8080`). Si el sitio principal usa HTTPS, Chromium bloquea el contenido mixto. Usar el flag `--unsafely-treat-insecure-origin-as-secure` apuntando al origen del proxy:
 
 ```bash
-chromium-browser \
+chromium \
   --kiosk \
   --unsafely-treat-insecure-origin-as-secure=http://localhost:8080 \
   https://control.tekron.com.ar
