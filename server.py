@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-# Proxy RTSP -> MJPEG HTTP para Raspberry Pi
+# Proxy RTSP -> MJPEG HTTP/HTTPS para Raspberry Pi
 # Requiere: pip install flask  y  ffmpeg instalado en el sistema
 #
-# Uso:
-#   python server.py --rtsp "rtsp://admin:PASSWORD@192.168.x.x:554/stream1" --port 8080
+# Uso sin SSL:
+#   python server.py --rtsp "rtsp://USUARIO:CLAVE@IP:554/stream1" --port 8080
 #
-# Tapo C100: activar "cámara local" en la app Tapo y configurar usuario/contraseña.
-# La URL RTSP es: rtsp://USUARIO:CONTRASEÑA@IP_CAMARA:554/stream1
-#
-# En Chromium (kiosk) permitir contenido no seguro:
-#   chromium-browser --allow-running-insecure-content https://contro.tekron.com.ar
+# Uso con SSL (recomendado, ver README para setup con mkcert):
+#   python server.py --rtsp "rtsp://USUARIO:CLAVE@IP:554/stream1" --port 8080 \
+#     --cert /home/pi/certs/localhost.pem --key /home/pi/certs/localhost-key.pem
 
 import subprocess
 import threading
@@ -85,10 +83,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--rtsp', required=True, help='URL RTSP de la cámara')
     parser.add_argument('--port', type=int, default=8080)
+    parser.add_argument('--cert', default=None, help='Ruta al certificado SSL (.pem)')
+    parser.add_argument('--key', default=None, help='Ruta a la clave privada SSL (.pem)')
     args = parser.parse_args()
+
+    ssl_context = (args.cert, args.key) if args.cert and args.key else None
+    proto = 'https' if ssl_context else 'http'
 
     t = threading.Thread(target=capture_frames, args=(args.rtsp,), daemon=True)
     t.start()
 
-    print(f'Stream disponible en http://localhost:{args.port}/stream')
-    app.run(host='0.0.0.0', port=args.port)
+    print(f'Stream disponible en {proto}://localhost:{args.port}/stream')
+    app.run(host='0.0.0.0', port=args.port, ssl_context=ssl_context)
