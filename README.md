@@ -49,6 +49,17 @@ El grabador reconecta automáticamente si se cae la conexión al servidor.
 
 Activar **cámara local** en la app Tapo antes de usar la URL RTSP.
 
+### Chromium en modo kiosk (HTTPS + stream HTTP local)
+
+El proxy MJPEG corre en HTTP (`localhost:8080`). Si el sitio principal usa HTTPS, Chromium bloquea el contenido mixto por defecto. Agregar el flag `--allow-running-insecure-content`:
+
+```bash
+chromium-browser \
+  --kiosk \
+  --allow-running-insecure-content \
+  https://control.tekron.com.ar
+```
+
 ---
 
 ## Inicio automático con systemd
